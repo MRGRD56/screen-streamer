@@ -5,12 +5,12 @@ import io.humble.video.*;
 import io.humble.video.awt.MediaPictureConverter;
 import io.humble.video.awt.MediaPictureConverterFactory;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ScreenRecorder implements AutoCloseable {
@@ -29,7 +29,7 @@ public class ScreenRecorder implements AutoCloseable {
 
     private final ExecutorService mainExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService frameExecutor = new ThreadPoolExecutor(
-            5, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1));
+            3, 3, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1));
 
     private volatile boolean isRecording = false;
 
@@ -77,8 +77,12 @@ public class ScreenRecorder implements AutoCloseable {
     }
 
     private BufferedImage createFrame() {
-        var sourceImage = screenService.getScreenshotAsImage(captureSettings);
-        return imageService.convertToType(sourceImage, IMAGE_TYPE);
+        try {
+            BufferedImage sourceImage = screenService.getScreenshotAsImage(new Robot(), captureSettings);
+            return imageService.convertToType(sourceImage, IMAGE_TYPE);
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void startRecording() {

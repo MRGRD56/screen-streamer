@@ -22,9 +22,17 @@ public class ScreenService {
         this.cursorService = cursorService;
     }
 
-    private Robot createRobot() {
+    public Robot createRobot() {
         try {
             return new Robot();
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Robot createRobot(Integer screen) {
+        try {
+            return new Robot(getScreen(screen));
         } catch (AWTException e) {
             throw new RuntimeException(e);
         }
@@ -59,7 +67,7 @@ public class ScreenService {
         return screens[index];
     }
 
-    private BufferedImage getOriginalScreenshot(@NonNull GraphicsDevice graphicsDevice, boolean hasCursor) {
+    private BufferedImage getOriginalScreenshot(@NonNull Robot robot, @NonNull GraphicsDevice graphicsDevice, boolean hasCursor) {
         var screenshot = robot.createScreenCapture(
                 graphicsDevice.getDefaultConfiguration().getBounds());
         if (hasCursor) {
@@ -69,7 +77,11 @@ public class ScreenService {
         return screenshot;
     }
 
-    public BufferedImage getScreenshotAsImage(@NonNull ScreenshotSettings screenshotSettings) {
+    private BufferedImage getOriginalScreenshot(@NonNull GraphicsDevice graphicsDevice, boolean hasCursor) {
+        return getOriginalScreenshot(robot, graphicsDevice, hasCursor);
+    }
+
+    public BufferedImage getScreenshotAsImage(Robot robot, @NonNull ScreenshotSettings screenshotSettings) {
         var graphicsDevice = getScreen(screenshotSettings.getScreen());
         var screenshot = getOriginalScreenshot(graphicsDevice, true);
 
@@ -79,8 +91,11 @@ public class ScreenService {
         return screenshot;
     }
 
-    public byte[] getScreenshotAsBytes(@NonNull ScreenshotSettings screenshotSettings) {
-        var screenshot = getScreenshotAsImage(screenshotSettings);
-        return imageService.compressJpegAsBytes(screenshot, screenshotSettings.getQuality());
+    public BufferedImage getScreenshotAsImage(@NonNull ScreenshotSettings screenshotSettings) {
+        return getScreenshotAsImage(robot, screenshotSettings);
+    }
+
+    public byte[] getScreenshotBytes(BufferedImage bufferedImage, ScreenshotSettings screenshotSettings) {
+        return imageService.compressJpegAsBytes(bufferedImage, screenshotSettings.getQuality());
     }
 }

@@ -26,7 +26,8 @@ public class ScreenController {
             @RequestParam(name = "screen", defaultValue = "0") int screenIndex,
             @RequestParam(required = false) Float quality,
             @RequestParam(required = false) Float sizeMultiplier) {
-        return screenService.getScreenshotAsBytes(new ScreenshotSettings(screenIndex, quality, sizeMultiplier));
+        var settings = new ScreenshotSettings(screenIndex, quality, sizeMultiplier);
+        return screenService.getScreenshotBytes(screenService.getScreenshotAsImage(settings), settings);
     }
 
     @GetMapping("screens")
