@@ -15,14 +15,8 @@ public class ScreenStreamingService {
     public ScreenStreamingService(
             ScreenRecorderFactory screenRecorderFactory) {
         this.screenRecorder = screenRecorderFactory.create(CAPTURE_FILENAME);
-        this.screenRecorder.startRecording();
         LoggerFactory.getLogger("DEBUG").info("Screen capture started");
-        try {
-            Thread.sleep(5_000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        screenRecorder.stopRecording();
+        this.screenRecorder.record(15_000);
         LoggerFactory.getLogger("DEBUG").info("Screen capture finished");
     }
 }

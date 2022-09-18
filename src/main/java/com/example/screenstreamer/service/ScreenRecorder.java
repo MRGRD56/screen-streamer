@@ -10,7 +10,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ScreenRecorder implements AutoCloseable {
@@ -32,6 +35,7 @@ public class ScreenRecorder implements AutoCloseable {
             3, 3, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(1));
 
     private volatile boolean isRecording = false;
+    private final AtomicBoolean isReallyRecording = new AtomicBoolean(false);
 
     public ScreenRecorder(
             String filename,
@@ -88,11 +92,16 @@ public class ScreenRecorder implements AutoCloseable {
     public void startRecording() {
         if (isRecording) {
             return;
+        } else if (isReallyRecording.get()) {
+            throw new RuntimeException("Still recording");
         }
 
         isRecording = true;
+        isReallyRecording.set(true);
 
         var quality = Math.round(captureSettings.getQuality() * 100);
+
+        encoder.setTimeBase(rational);
 
         encoder.open(null, null);
         var muxerStream = muxer.addNewStream(encoder);
@@ -140,7 +149,7 @@ public class ScreenRecorder implements AutoCloseable {
                             }
                         } while (packet.isComplete());
                     }));
-                } catch (RejectedExecutionException e) {
+                } catch (RejectedExecutionException ignored) {
                 }
 
                 try {
@@ -161,11 +170,40 @@ public class ScreenRecorder implements AutoCloseable {
             muxer.close();
             muxer.delete();
             muxerStream.delete();
+
+            isReallyRecording.set(false);
+            synchronized (isReallyRecording) {
+                isReallyRecording.notify();
+            }
         });
     }
 
     public void stopRecording() {
         isRecording = false;
+    }
+
+    public void waitFinish() {
+        while (isReallyRecording.get()) {
+            synchronized (isReallyRecording) {
+                try {
+                    isReallyRecording.wait();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    public void record(long durationMs) {
+        try {
+            startRecording();
+            Thread.sleep(durationMs);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } finally {
+            stopRecording();
+            waitFinish();
+        }
     }
 
     @Override

@@ -83,7 +83,7 @@ public class ScreenService {
 
     public BufferedImage getScreenshotAsImage(Robot robot, @NonNull ScreenshotSettings screenshotSettings) {
         var graphicsDevice = getScreen(screenshotSettings.getScreen());
-        var screenshot = getOriginalScreenshot(graphicsDevice, true);
+        var screenshot = getOriginalScreenshot(robot, graphicsDevice, true);
 
         if (screenshotSettings.getSizeMultiplier() != null) {
             screenshot = imageService.resizeImage(screenshot, screenshotSettings.getSizeMultiplier());
