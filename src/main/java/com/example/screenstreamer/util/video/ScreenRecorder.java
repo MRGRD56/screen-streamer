@@ -1,6 +1,8 @@
-package com.example.screenstreamer.service;
+package com.example.screenstreamer.util.video;
 
 import com.example.screenstreamer.model.config.ScreenCaptureSettings;
+import com.example.screenstreamer.service.ImageService;
+import com.example.screenstreamer.service.ScreenService;
 import io.humble.video.*;
 import io.humble.video.awt.MediaPictureConverter;
 import io.humble.video.awt.MediaPictureConverterFactory;

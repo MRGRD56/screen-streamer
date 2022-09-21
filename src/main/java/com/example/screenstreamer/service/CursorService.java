@@ -1,6 +1,6 @@
 package com.example.screenstreamer.service;
 
-import com.example.screenstreamer.utils.AppResourceUtils;
+import com.example.screenstreamer.util.AppResourceUtils;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -25,9 +25,12 @@ public class CursorService {
             return;
         }
 
+        var screenBounds = graphicsDevice.getDefaultConfiguration().getBounds();
         var cursorPosition = pointerInfo.getLocation();
+        var cursorPositionOnScreen = new Point(cursorPosition.x - screenBounds.x, cursorPosition.y - screenBounds.y);
+
         graphics.drawImage(cursorImage,
-                cursorPosition.x, cursorPosition.y,
+                cursorPositionOnScreen.x, cursorPositionOnScreen.y,
                 cursorImage.getWidth(), cursorImage.getHeight(),
                 null);
     }

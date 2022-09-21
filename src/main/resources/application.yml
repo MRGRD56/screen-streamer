@@ -2,7 +2,7 @@ server:
   port: 5551
 
 screen-stream:
-  fps: 2
-  quality: 1
-  size-miltiplier: 1
+  fps: 24
+  quality: 0.5
+  size-multiplier: 0.8
   screen: 0

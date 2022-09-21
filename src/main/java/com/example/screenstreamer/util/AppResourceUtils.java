@@ -1,4 +1,4 @@
-package com.example.screenstreamer.utils;
+package com.example.screenstreamer.util;
 
 import org.springframework.util.ResourceUtils;
 

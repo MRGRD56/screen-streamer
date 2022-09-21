@@ -98,4 +98,9 @@ public class ScreenService {
     public byte[] getScreenshotBytes(BufferedImage bufferedImage, ScreenshotSettings screenshotSettings) {
         return imageService.compressJpegAsBytes(bufferedImage, screenshotSettings.getQuality());
     }
+
+    public byte[] getScreenshotAsBytes(ScreenshotSettings screenshotSettings) {
+        var image = getScreenshotAsImage(screenshotSettings);
+        return imageService.compressJpegAsBytes(image, screenshotSettings.getQuality());
+    }
 }

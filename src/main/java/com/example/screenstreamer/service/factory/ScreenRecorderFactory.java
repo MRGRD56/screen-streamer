@@ -2,7 +2,7 @@ package com.example.screenstreamer.service.factory;
 
 import com.example.screenstreamer.model.config.ScreenCaptureSettings;
 import com.example.screenstreamer.service.ImageService;
-import com.example.screenstreamer.service.ScreenRecorder;
+import com.example.screenstreamer.util.video.ScreenRecorder;
 import com.example.screenstreamer.service.ScreenService;
 import org.springframework.stereotype.Component;
 
