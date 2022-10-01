@@ -1,6 +1,9 @@
 package com.example.screenstreamer.service;
 
+import com.example.screenstreamer.model.MouseButton;
 import com.example.screenstreamer.util.AppResourceUtils;
+import com.example.screenstreamer.util.RobotFactory;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -10,9 +13,19 @@ import java.util.Objects;
 @Service
 public class CursorService {
     private final BufferedImage cursorImage = getCursorImage();
+    private final Robot robot = RobotFactory.create();
+    private final ScreenPositionService screenPositionService;
+
+    public CursorService(ScreenPositionService screenPositionService) {
+        this.screenPositionService = screenPositionService;
+    }
 
     public PointerInfo getPointerInfo() {
         return MouseInfo.getPointerInfo();
+    }
+
+    public Point getPosition() {
+        return getPointerInfo().getLocation();
     }
 
     private BufferedImage getCursorImage() {
@@ -25,9 +38,8 @@ public class CursorService {
             return;
         }
 
-        var screenBounds = graphicsDevice.getDefaultConfiguration().getBounds();
         var cursorPosition = pointerInfo.getLocation();
-        var cursorPositionOnScreen = new Point(cursorPosition.x - screenBounds.x, cursorPosition.y - screenBounds.y);
+        var cursorPositionOnScreen = screenPositionService.getPositionOnScreen(graphicsDevice, cursorPosition);
 
         graphics.drawImage(cursorImage,
                 cursorPositionOnScreen.x, cursorPositionOnScreen.y,
@@ -37,5 +49,23 @@ public class CursorService {
 
     public void drawCursor(BufferedImage originalImage, GraphicsDevice graphicsDevice) {
         drawCursor(originalImage.getGraphics(), graphicsDevice);
+    }
+
+    public void moveCursor(int x, int y) {
+        robot.mouseMove(x, y);
+    }
+
+    public void moveCursor(Point point) {
+        robot.mouseMove(point.x, point.y);
+    }
+
+    public void moveCursor(PointerInfo info) {
+        var position = screenPositionService.getAbsolutePosition(info.getDevice(), info.getLocation());
+        robot.mouseMove(position.x, position.y);
+    }
+
+    public void click(@NonNull MouseButton button) {
+        robot.mousePress(button.code());
+        robot.mouseRelease(button.code());
     }
 }

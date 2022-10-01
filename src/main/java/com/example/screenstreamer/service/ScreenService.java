@@ -2,6 +2,7 @@ package com.example.screenstreamer.service;
 
 import com.example.screenstreamer.model.config.ScreenshotSettings;
 import com.example.screenstreamer.model.dto.ScreenDto;
+import com.example.screenstreamer.util.RobotFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,7 @@ import java.awt.image.BufferedImage;
 
 @Service
 public class ScreenService {
-    private final Robot robot = createRobot();
+    private final Robot robot = RobotFactory.create();
     private final GraphicsDevice[] screens = getScreens();
     private final ImageService imageService;
     private final CursorService cursorService;
@@ -20,22 +21,6 @@ public class ScreenService {
             CursorService cursorService) {
         this.imageService = imageService;
         this.cursorService = cursorService;
-    }
-
-    public Robot createRobot() {
-        try {
-            return new Robot();
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public Robot createRobot(Integer screen) {
-        try {
-            return new Robot(getScreen(screen));
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private GraphicsDevice[] getScreens() {

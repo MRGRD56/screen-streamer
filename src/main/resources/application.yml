@@ -5,4 +5,6 @@ screen-stream:
   fps: 24
   quality: 0.5
   size-multiplier: 0.8
-  screen: 0
+  screen: 1
+
+control-password: kjtMuuFXQuySdp9pPgdCXdKbJ2hR16XC
