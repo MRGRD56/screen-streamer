@@ -1,8 +1,8 @@
-package com.example.screenstreamer.util.video.mjpeg;
+package com.example.screenstreamer.util.video;
 
 import java.util.Collection;
 
-public interface MjpegAppliable {
+public interface FrameWriter {
     void apply(byte[] image);
 
     void applyAll(Collection<byte[]> images);

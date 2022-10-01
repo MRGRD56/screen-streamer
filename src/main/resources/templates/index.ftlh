@@ -25,7 +25,7 @@
     </style>
 </head>
 <body>
-<img class="screen-stream" alt="Screen stream" src="/api/screen/stream.mjpeg">
+<img class="screen-stream" alt="Screen stream" src="/api/screen/stream.mjpeg?password=${password!""}">
 
 <script>
     const PASSWORD = `${password!""}` || undefined;
@@ -148,6 +148,18 @@
             x,
             y,
             mouseButton: 'RIGHT'
+        });
+    });
+
+    screenElement.addEventListener('wheel', event => {
+        event.preventDefault();
+
+        request('/api/screen-control/mouse/scroll', {
+            method: 'POST',
+            body: {
+                deltaX: Math.sign(event.deltaX),
+                deltaY: Math.sign(event.deltaY)
+            }
         });
     });
 </script>

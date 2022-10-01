@@ -1,7 +1,9 @@
 package com.example.screenstreamer.service;
 
 import com.example.screenstreamer.model.config.ScreenCaptureSettings;
-import io.reactivex.rxjava3.core.Observable;
+import com.example.screenstreamer.util.video.AnyFrameMultiWriter;
+import com.example.screenstreamer.util.video.FrameMultiWriter;
+import com.example.screenstreamer.util.video.FrameWriter;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import io.reactivex.rxjava3.subjects.Subject;
 import org.springframework.stereotype.Service;
@@ -14,22 +16,24 @@ public class ScreenCaptureService {
     private final ScreenCaptureSettings screenCaptureSettings;
     private final ScreenService screenService;
 
-    private final Subject<byte[]> frameSubject = PublishSubject.create();
+//    private final Subject<byte[]> frameSubject = PublishSubject.create();
+
+    private final FrameMultiWriter<FrameWriter> frameMultiWriter = new AnyFrameMultiWriter();
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public ScreenCaptureService(
             ScreenCaptureSettings screenCaptureSettings,
             ScreenService screenService) {
-
         this.screenCaptureSettings = screenCaptureSettings;
         this.screenService = screenService;
 
+//        frameSubject.subscribe(frameMultiWriter::apply);
         startCapture();
     }
 
-    public Observable<byte[]> getFrameObservable() {
-        return frameSubject;
+    public FrameMultiWriter<FrameWriter> getFrameMultiWriter() {
+        return frameMultiWriter;
     }
 
     private void startCapture() {
@@ -38,8 +42,11 @@ public class ScreenCaptureService {
         executor.submit(() -> {
             while (true) {
                 try {
-                    var frame = screenService.getScreenshotAsBytes(screenCaptureSettings);
-                    frameSubject.onNext(frame);
+                    if (frameMultiWriter.hasWriters()) {
+                        var frame = screenService.getScreenshotAsBytes(screenCaptureSettings);
+                        frameMultiWriter.apply(frame);
+//                        frameSubject.onNext(frame);
+                    }
 
                     Thread.sleep(delay);
                 } catch (InterruptedException e) {

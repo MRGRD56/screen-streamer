@@ -68,4 +68,8 @@ public class CursorService {
         robot.mousePress(button.code());
         robot.mouseRelease(button.code());
     }
+
+    public void scroll(int deltaY) {
+        robot.mouseWheel(deltaY);
+    }
 }

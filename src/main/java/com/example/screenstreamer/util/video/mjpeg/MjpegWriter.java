@@ -1,11 +1,13 @@
 package com.example.screenstreamer.util.video.mjpeg;
 
+import com.example.screenstreamer.util.video.FrameWriter;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class MjpegWriter implements MjpegAppliable {
+public class MjpegWriter implements FrameWriter {
     private static final String NL = "\r\n";
     public static final String BOUNDARY = "--boundary";
     private static final String HEAD = BOUNDARY + NL +

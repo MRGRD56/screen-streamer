@@ -2,9 +2,12 @@ server:
   port: 5551
 
 screen-stream:
-  fps: 24
-  quality: 0.5
+  fps: 12
+  quality: 0.75
   size-multiplier: 0.8
   screen: 1
 
-control-password: kjtMuuFXQuySdp9pPgdCXdKbJ2hR16XC
+security:
+  password: kjtMuuFXQuySdp9pPgdCXdKbJ2hR16XC
+  secure-view: true
+  secure-control: true

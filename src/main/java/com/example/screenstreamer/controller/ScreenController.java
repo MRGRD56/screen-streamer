@@ -1,31 +1,32 @@
 package com.example.screenstreamer.controller;
 
 import com.example.screenstreamer.model.config.ScreenshotSettings;
+import com.example.screenstreamer.model.config.SecuritySettings;
 import com.example.screenstreamer.model.dto.ScreenDto;
 import com.example.screenstreamer.service.MjpegScreenStreamingService;
 import com.example.screenstreamer.service.ScreenService;
+import com.example.screenstreamer.service.SecurityService;
 import com.example.screenstreamer.util.video.mjpeg.MjpegWriter;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("/api/screen")
 public class ScreenController {
     private final ScreenService screenService;
     private final MjpegScreenStreamingService mjpegScreenStreamingService;
+    private final SecurityService securityService;
 
     public ScreenController(
             ScreenService screenService,
-            MjpegScreenStreamingService mjpegScreenStreamingService) {
+            MjpegScreenStreamingService mjpegScreenStreamingService,
+            SecurityService securityService) {
         this.screenService = screenService;
         this.mjpegScreenStreamingService = mjpegScreenStreamingService;
+        this.securityService = securityService;
     }
 
     @GetMapping(
@@ -46,8 +47,12 @@ public class ScreenController {
     }
 
     @GetMapping("stream.mjpeg")
-    public void getScreenStreamMjpeg(HttpServletResponse response) throws IOException {
-        var mjpegWriter = mjpegScreenStreamingService.getMjpegStream();
+    public void getScreenStreamMjpeg(
+            @RequestParam(required = false) String password,
+            HttpServletResponse response) throws IOException {
+        securityService.checkPassword(password, SecuritySettings::isSecureView);
+
+        var mjpegWriter = mjpegScreenStreamingService.startMjpegStream();
 
         response.setHeader("Cache-Control", "no-cache, private");
         response.setHeader("Content-Type", "multipart/x-mixed-replace;boundary=" + MjpegWriter.BOUNDARY);
