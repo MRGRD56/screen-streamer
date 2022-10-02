@@ -17,9 +17,13 @@ public class SecurityService {
     }
 
     public void checkPassword(String password, Function<SecuritySettings, Boolean> isSecureFunction) {
+        checkPassword(password, isSecureFunction, HttpStatus.BAD_REQUEST);
+    }
+
+    public void checkPassword(String password, Function<SecuritySettings, Boolean> isSecureFunction, HttpStatus errorStatus) {
         var isSecure = isSecureFunction.apply(securitySettings);
         if (isSecure && !Objects.equals(password, securitySettings.getPassword())) {
-            throw new StatusException(HttpStatus.BAD_REQUEST);
+            throw new StatusException(errorStatus);
         }
     }
 }

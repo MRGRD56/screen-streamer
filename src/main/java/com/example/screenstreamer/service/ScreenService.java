@@ -14,13 +14,13 @@ public class ScreenService {
     private final Robot robot = RobotFactory.create();
     private final GraphicsDevice[] screens = getScreens();
     private final ImageService imageService;
-    private final CursorService cursorService;
+    private final MouseService mouseService;
 
     public ScreenService(
             ImageService imageService,
-            CursorService cursorService) {
+            MouseService mouseService) {
         this.imageService = imageService;
-        this.cursorService = cursorService;
+        this.mouseService = mouseService;
     }
 
     private GraphicsDevice[] getScreens() {
@@ -56,7 +56,7 @@ public class ScreenService {
         var screenshot = robot.createScreenCapture(
                 graphicsDevice.getDefaultConfiguration().getBounds());
         if (hasCursor) {
-            cursorService.drawCursor(screenshot, graphicsDevice);
+            mouseService.drawCursor(screenshot, graphicsDevice);
         }
 
         return screenshot;

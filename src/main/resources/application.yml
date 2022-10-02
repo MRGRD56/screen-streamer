@@ -2,10 +2,10 @@ server:
   port: 5551
 
 screen-stream:
-  fps: 12
-  quality: 0.75
-  size-multiplier: 0.8
-  screen: 1
+  fps: 24
+  quality: 0.6
+  size-multiplier: 1
+  screen: 0
 
 security:
   password: kjtMuuFXQuySdp9pPgdCXdKbJ2hR16XC

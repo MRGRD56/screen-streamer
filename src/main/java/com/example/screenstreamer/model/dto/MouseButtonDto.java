@@ -2,31 +2,15 @@ package com.example.screenstreamer.model.dto;
 
 import com.example.screenstreamer.model.MouseButton;
 
-public class MouseClickDto {
-    private double x;
-    private double y;
+public class MouseButtonDto implements IMouseButtonClickDto {
     private MouseButton mouseButton;
 
-    public double getX() {
-        return x;
-    }
-
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
+    @Override
     public MouseButton getMouseButton() {
         return mouseButton;
     }
 
+    @Override
     public void setMouseButton(MouseButton mouseButton) {
         this.mouseButton = mouseButton;
     }

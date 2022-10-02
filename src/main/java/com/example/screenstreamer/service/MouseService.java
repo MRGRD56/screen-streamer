@@ -11,12 +11,12 @@ import java.awt.image.BufferedImage;
 import java.util.Objects;
 
 @Service
-public class CursorService {
+public class MouseService {
     private final BufferedImage cursorImage = getCursorImage();
     private final Robot robot = RobotFactory.create();
     private final ScreenPositionService screenPositionService;
 
-    public CursorService(ScreenPositionService screenPositionService) {
+    public MouseService(ScreenPositionService screenPositionService) {
         this.screenPositionService = screenPositionService;
     }
 
@@ -64,9 +64,17 @@ public class CursorService {
         robot.mouseMove(position.x, position.y);
     }
 
-    public void click(@NonNull MouseButton button) {
+    public void press(@NonNull MouseButton button) {
         robot.mousePress(button.code());
+    }
+
+    public void release(@NonNull MouseButton button) {
         robot.mouseRelease(button.code());
+    }
+
+    public void click(@NonNull MouseButton button) {
+        press(button);
+        release(button);
     }
 
     public void scroll(int deltaY) {

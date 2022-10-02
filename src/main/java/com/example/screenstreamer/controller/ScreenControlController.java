@@ -2,51 +2,91 @@ package com.example.screenstreamer.controller;
 
 import com.example.screenstreamer.model.config.ScreenCaptureSettings;
 import com.example.screenstreamer.model.config.SecuritySettings;
-import com.example.screenstreamer.model.dto.MouseClickDto;
+import com.example.screenstreamer.model.dto.KeyboardKeyDto;
+import com.example.screenstreamer.model.dto.MousePositionDto;
+import com.example.screenstreamer.model.dto.MousePositionedClickDto;
 import com.example.screenstreamer.model.dto.MouseScrollDto;
-import com.example.screenstreamer.service.CursorService;
-import com.example.screenstreamer.service.ScreenPositionService;
-import com.example.screenstreamer.service.ScreenService;
-import com.example.screenstreamer.service.SecurityService;
+import com.example.screenstreamer.service.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/screen-control")
 public class ScreenControlController {
 
-    private final CursorService cursorService;
+    private final MouseService mouseService;
     private final ScreenPositionService screenPositionService;
     private final ScreenCaptureSettings screenCaptureSettings;
     private final ScreenService screenService;
     private final SecurityService securityService;
+    private final KeyboardService keyboardService;
 
     public ScreenControlController(
-            CursorService cursorService,
+            MouseService mouseService,
             ScreenPositionService screenPositionService,
             ScreenCaptureSettings screenCaptureSettings,
             ScreenService screenService,
-            SecurityService securityService) {
-        this.cursorService = cursorService;
+            SecurityService securityService,
+            KeyboardService keyboardService) {
+        this.mouseService = mouseService;
         this.screenPositionService = screenPositionService;
         this.screenCaptureSettings = screenCaptureSettings;
         this.screenService = screenService;
         this.securityService = securityService;
+        this.keyboardService = keyboardService;
     }
 
+    @Deprecated
     @PostMapping("mouse/click")
     public void mouseClick(
             @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
-            @RequestBody MouseClickDto body) {
+            @RequestBody MousePositionedClickDto body) {
         securityService.checkPassword(password, SecuritySettings::isSecureControl);
 
         var device = screenService.getScreen(screenCaptureSettings.getScreen());
-        var screenPosition = screenPositionService.getPositionOnScreenFromPercentage(device, body.getX(), body.getY());
-        var absolutePosition = screenPositionService.getAbsolutePosition(device, screenPosition);
+        var absolutePosition = screenPositionService.getAbsolutePositionFromScreenPercentage(device, body.getX(), body.getY());
 
 //        var previousPosition = cursorService.getPointerInfo();
-        cursorService.moveCursor(absolutePosition);
-        cursorService.click(body.getMouseButton());
+        mouseService.moveCursor(absolutePosition);
+        mouseService.click(body.getMouseButton());
 //        cursorService.moveCursor(previousPosition);
+    }
+
+    @PostMapping("mouse/press")
+    public void mousePress(
+            @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
+            @RequestBody MousePositionedClickDto body) {
+        securityService.checkPassword(password, SecuritySettings::isSecureControl);
+
+        var device = screenService.getScreen(screenCaptureSettings.getScreen());
+        var absolutePosition = screenPositionService.getAbsolutePositionFromScreenPercentage(device, body.getX(), body.getY());
+
+        mouseService.moveCursor(absolutePosition);
+        mouseService.press(body.getMouseButton());
+    }
+
+    @PostMapping("mouse/release")
+    public void mouseRelease(
+            @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
+            @RequestBody MousePositionedClickDto body) {
+        securityService.checkPassword(password, SecuritySettings::isSecureControl);
+
+        var device = screenService.getScreen(screenCaptureSettings.getScreen());
+        var absolutePosition = screenPositionService.getAbsolutePositionFromScreenPercentage(device, body.getX(), body.getY());
+
+        mouseService.moveCursor(absolutePosition);
+        mouseService.release(body.getMouseButton());
+    }
+
+    @PostMapping("mouse/move")
+    public void mouseMove(
+            @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
+            @RequestBody MousePositionDto body) {
+        securityService.checkPassword(password, SecuritySettings::isSecureControl);
+
+        var device = screenService.getScreen(screenCaptureSettings.getScreen());
+        var absolutePosition = screenPositionService.getAbsolutePositionFromScreenPercentage(device, body.getX(), body.getY());
+
+        mouseService.moveCursor(absolutePosition);
     }
 
     @PostMapping("mouse/scroll")
@@ -55,6 +95,24 @@ public class ScreenControlController {
             @RequestBody MouseScrollDto body) {
         securityService.checkPassword(password, SecuritySettings::isSecureControl);
 
-        cursorService.scroll(body.getDeltaY());
+        mouseService.scroll(body.getDeltaY());
+    }
+
+    @PostMapping("keyboard/key-down")
+    public void keyboardKeyDown(
+            @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
+            @RequestBody KeyboardKeyDto body) {
+        securityService.checkPassword(password, SecuritySettings::isSecureControl);
+
+        keyboardService.keyDown(body.getKeycode());
+    }
+
+    @PostMapping("keyboard/key-up")
+    public void keyboardKeyUp(
+            @RequestHeader(name = SecuritySettings.PASSWORD_HEADER, required = false) String password,
+            @RequestBody KeyboardKeyDto body) {
+        securityService.checkPassword(password, SecuritySettings::isSecureControl);
+
+        keyboardService.keyUp(body.getKeycode());
     }
 }

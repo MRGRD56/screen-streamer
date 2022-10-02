@@ -21,12 +21,20 @@
             max-height: 100vh;
             max-width: 100%;
             touch-action: manipulation;
+
+            user-drag: none;
+            -webkit-user-drag: none;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
         }
     </style>
 </head>
 <body>
 <img class="screen-stream" alt="Screen stream" src="/api/screen/stream.mjpeg?password=${password!""}">
 
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
 <script>
     const PASSWORD = `${password!""}` || undefined;
 
@@ -76,6 +84,13 @@
         }[button];
     };
 
+    const getKeyboardKeyFromEvent = event => {
+        return {
+            keycode: event.which
+        };
+    };
+
+    /** @deprecated */
     const requestClick = ({x, y, mouseButton}) => {
         request('/api/screen-control/mouse/click', {
             method: 'POST',
@@ -87,15 +102,30 @@
         });
     };
 
-    const handleClick = (event) => {
+    const requestButton = (eventType, {x, y, mouseButton}) => {
+        request('/api/screen-control/mouse/' + eventType, {
+            method: 'POST',
+            body: {
+                x,
+                y,
+                mouseButton
+            }
+        });
+    };
+
+    const handleMouseButton = (event) => {
         event.preventDefault();
 
-        const {x, y} = getPositionFromEvent(event);
         const apiButton = getMouseButtonFromEvent(event);
+        const {x, y} = getPositionFromEvent(event);
+        const eventType = {
+            'mousedown': 'press',
+            'mouseup': 'release'
+        }[event.type];
 
         console.log('x: ' + x + '; y: ' + y + '; button: ' + apiButton);
 
-        requestClick({
+        requestButton(eventType, {
             x,
             y,
             mouseButton: apiButton
@@ -107,8 +137,9 @@
         return false;
     });
 
-    screenElement.addEventListener('click', handleClick);
-    screenElement.addEventListener('auxclick', handleClick);
+    // click, auxclick
+    screenElement.addEventListener('mousedown', handleMouseButton);
+    screenElement.addEventListener('mouseup', handleMouseButton);
 
     function onLongPress(element, callback) {
         let timer;
@@ -162,6 +193,40 @@
             }
         });
     });
+
+    screenElement.addEventListener('mousemove', _.throttle(event => {
+        event.preventDefault();
+
+        const {x, y} = getPositionFromEvent(event);
+
+        request('/api/screen-control/mouse/move', {
+            method: 'POST',
+            body: {
+                x,
+                y
+            }
+        });
+    }, 50));
+
+    const handleKeyboardKey = event => {
+        event.preventDefault();
+
+        const {keycode} = getKeyboardKeyFromEvent(event);
+        const eventType = {
+            'keydown': 'key-down',
+            'keyup': 'key-up'
+        }[event.type];
+
+        request('/api/screen-control/keyboard/' + eventType, {
+            method: 'POST',
+            body: {
+                keycode
+            }
+        });
+    };
+
+    document.addEventListener('keydown', handleKeyboardKey, true);
+    document.addEventListener('keyup', handleKeyboardKey, true);
 </script>
 </body>
 </html>

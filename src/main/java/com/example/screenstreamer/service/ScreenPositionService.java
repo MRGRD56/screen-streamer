@@ -12,6 +12,11 @@ public class ScreenPositionService {
                 absolutePosition.x - screenBounds.x, absolutePosition.y - screenBounds.y);
     }
 
+    public Point getAbsolutePositionFromScreenPercentage(GraphicsDevice graphicsDevice, double xPercentage, double yPercentage) {
+        var screenPosition = getPositionOnScreenFromPercentage(graphicsDevice, xPercentage, yPercentage);
+        return getAbsolutePosition(graphicsDevice, screenPosition);
+    }
+
     public Point getAbsolutePosition(GraphicsDevice graphicsDevice, Point positionOnScreen) {
         var absolutePosition = getScreenBounds(graphicsDevice);
         return new Point(
